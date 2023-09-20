@@ -19,32 +19,28 @@ public class build_successful
     }
 
     [Function("build_successful")]
-    public HttpResponseData RunSuccessful([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
+    public async Task<HttpResponseData> RunSuccessful([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
     {
-        _logger.LogInformation("C# HTTP trigger function processed a request.");
+        _logger.LogInformation("process successful");
 
+        await PublishPipelineStatus("green");
         var response = req.CreateResponse(HttpStatusCode.OK);
-        response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
-
-        response.WriteString("Welcome to Azure Functions!");
 
         return response;
     }
 
     [Function("build_failed")]
-    public HttpResponseData RunFailed([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
+    public async  Task<HttpResponseData> RunFailed([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
     {
-        _logger.LogInformation("C# HTTP trigger function processed a request.");
+        _logger.LogInformation("process failed");
 
         var response = req.CreateResponse(HttpStatusCode.OK);
-        response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
-
-        response.WriteString("Welcome to Azure Functions!");
+        await PublishPipelineStatus("red");
 
         return response;
     }
 
-    public static async Task PublishPipelineStatus()
+    public static async Task PublishPipelineStatus(string payload)
     {
         var mqttFactory = new MqttFactory();
 
@@ -57,15 +53,13 @@ public class build_successful
             await mqttClient.ConnectAsync(mqttClientOptions, CancellationToken.None);
 
             var applicationMessage = new MqttApplicationMessageBuilder()
-                .WithTopic("samples/temperature/living_room")
-                .WithPayload("19.5")
+                .WithTopic("cerealkillers/build")
+                .WithPayload(payload)
                 .Build();
 
             await mqttClient.PublishAsync(applicationMessage, CancellationToken.None);
 
             await mqttClient.DisconnectAsync();
-
-            Console.WriteLine("MQTT application message is published.");
         }
     }
 }
