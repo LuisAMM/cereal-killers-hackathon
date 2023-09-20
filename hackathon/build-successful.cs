@@ -6,13 +6,13 @@ using MQTTnet.Client;
 
 using Microsoft.Extensions.Logging;
 using System.Text;
+using Azure.Core;
 
 namespace cereal_killers;
 
 public class build_successful
 {
     private readonly ILogger _logger;
-    private readonly StringReader reader;
     private static string _broker_Url = "broker.emqx.io";
 
     public build_successful(ILoggerFactory loggerFactory)
@@ -27,10 +27,9 @@ public class build_successful
         
 
         var response = req.CreateResponse(HttpStatusCode.OK);
-        using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
-        response.Body = req.Body;
 
-        _logger.LogInformation(response.Body.ToString());
+        var body = StreamToString(req.Body);
+        _logger.LogInformation(body);
         await PublishPipelineStatus("green");
 
         return response;
@@ -42,8 +41,9 @@ public class build_successful
         _logger.LogInformation("process failed");
 
         var response = req.CreateResponse(HttpStatusCode.OK);
-        response.Body = req.Body;
-        _logger.LogInformation(response.Body.ToString());
+        
+        var body = StreamToString(req.Body);
+        _logger.LogInformation(body);
         await PublishPipelineStatus("red");
 
         return response;
@@ -55,8 +55,8 @@ public class build_successful
         _logger.LogInformation("process has warnings");
 
         var response = req.CreateResponse(HttpStatusCode.OK);
-        response.Body = req.Body;
-        _logger.LogWarning(response.Body.ToString());
+        var body = StreamToString(req.Body);
+        _logger.LogInformation(body);
         await PublishPipelineStatus("yellow");
 
         return response;
@@ -84,8 +84,7 @@ public class build_successful
             await mqttClient.DisconnectAsync();
         }
     }
-    public static string StreamToString(Stream stream)
-    {
+    public static string StreamToString(Stream stream){
         stream.Position = 0;
         using (StreamReader reader = new StreamReader(stream))
         {
