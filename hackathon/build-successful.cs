@@ -79,4 +79,12 @@ public class build_successful
             await mqttClient.DisconnectAsync();
         }
     }
+    public static string StreamToString(Stream stream)
+    {
+        stream.Position = 0;
+        using (StreamReader reader = new StreamReader(stream))
+        {
+            return reader.ReadToEnd();
+        }
+    }
 }
