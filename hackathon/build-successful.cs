@@ -23,9 +23,11 @@ public class build_successful
     {
         _logger.LogInformation("process successful");
 
-        await PublishPipelineStatus("green");
         var response = req.CreateResponse(HttpStatusCode.OK);
-
+        response.Body = req.Body;
+        _logger.LogInformation(response.Body.ToString());
+        await PublishPipelineStatus("green");
+        
         return response;
     }
 
@@ -35,6 +37,8 @@ public class build_successful
         _logger.LogInformation("process failed");
 
         var response = req.CreateResponse(HttpStatusCode.OK);
+        response.Body = req.Body;
+        _logger.LogInformation(response.Body.ToString());
         await PublishPipelineStatus("red");
 
         return response;
