@@ -40,6 +40,19 @@ public class build_successful
         return response;
     }
 
+    [Function("build_hasWarnings")]
+    public async  Task<HttpResponseData> RunsWithWarning([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
+    {
+        _logger.LogInformation("process has warnings");
+
+        var response = req.CreateResponse(HttpStatusCode.OK);
+        response.Body = req.Body;
+        _logger.LogWarning(response.Body.ToString());
+        await PublishPipelineStatus("yellow");
+
+        return response;
+    }
+
     public static async Task PublishPipelineStatus(string payload)
     {
         var mqttFactory = new MqttFactory();
