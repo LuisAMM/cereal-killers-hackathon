@@ -10,6 +10,7 @@
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.19.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.0.13" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.14.0" />
+    <PackageReference Include="MQTTnet" Version="4.3.1.873" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
