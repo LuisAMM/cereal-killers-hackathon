@@ -5,12 +5,14 @@ using MQTTnet;
 using MQTTnet.Client;
 
 using Microsoft.Extensions.Logging;
+using System.Text;
 
 namespace cereal_killers;
 
 public class build_successful
 {
     private readonly ILogger _logger;
+    private readonly StringReader reader;
     private static string _broker_Url = "broker.emqx.io";
 
     public build_successful(ILoggerFactory loggerFactory)
@@ -22,12 +24,15 @@ public class build_successful
     public async Task<HttpResponseData> RunSuccessful([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
     {
         _logger.LogInformation("process successful");
+        
 
         var response = req.CreateResponse(HttpStatusCode.OK);
+        using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
         response.Body = req.Body;
+
         _logger.LogInformation(response.Body.ToString());
         await PublishPipelineStatus("green");
-        
+
         return response;
     }
 
